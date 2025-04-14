@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ti5robot/hand_ws/devel/setup.sh

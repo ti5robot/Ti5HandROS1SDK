@@ -1,0 +1,8 @@
+prefix=/home/ti5robot/hand_ws/devel
+
+Name: hand_control
+Description: Description of hand_control
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

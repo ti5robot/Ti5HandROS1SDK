@@ -1,0 +1,2 @@
+hand_control
+-DCATKIN_DEVEL_PREFIX=/home/ti5robot/hand_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ti5robot/hand_ws/install -G Unix Makefiles
