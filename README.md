@@ -1,82 +1,101 @@
-﻿首先cd 进入~/hand\_ws
+# Ti5HandROS1SDK
+钛虎五指灵巧手
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.001.png)
+# Ti5Hand ROS1 SDK 开发文档
 
+## 一、环境准备
+- **操作系统**: Ubuntu 20.04
+- **ROS版本**: ROS Noetic
+- **依赖安装**:
+  sudo apt-get update
+  sudo apt-get install git ros-noetic-serial ros-noetic-roscpp
 
+二、完整使用流程
+1. 获取代码
 
+git clone https://github.com/ti5robot/Ti5HandROS1SDK.git
+cd Ti5HandROS1SDK/hand_ws
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+2. 编译工作空间
 
 
+# 清理旧编译文件（首次或出错时执行）
+rm -rf build/ devel/
 
-然后删除 build/ devel/文件夹
+# 编译工作空间
+catkin_make
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.002.png)
-
-### 删除后重新编译
-
-cd ~/hand\_ws
-
-catkin\_make
-
+# 配置环境变量
 source devel/setup.bash
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.003.png)
+3. 设备权限设置
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.004.png)
 
-新打开一个终端，输入roscore命令运行ros1主节点 
+# 临时解决方案（每次重启后需重新执行）
+sudo chmod 666 /dev/ttyUSB0
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.005.png)
+# 永久解决方案（推荐）
+sudo usermod -a -G dialout $USER && sudo reboot
 
-在一开始的终端运行键盘发布节点
+4. 运行控制节点
 
+需要开启两个终端窗口：
+
+终端1 - 运行机械手控制节点:
+
+cd ~/Ti5HandROS1SDK/hand_ws
 source devel/setup.bash
+rosrun hand_control hand_control_node
 
-rosrun hand\_control keyboard\_publisher
+终端2 - 运行键盘控制节点:
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.006.png)
-
-新开一个终端，将机械手通电并且usb插上设备
-
-输入命令
-
-cd ~/hand\_ws
-
+cd ~/Ti5HandROS1SDK/hand_ws
 source devel/setup.bash
+rosrun hand_control keyboard_publisher
 
-给予设备权限 sudo chmod 777 /dev/ttyUSB0
+三、键盘控制指令手册
+指令格式说明
 
-rosrun hand\_control hand\_control\_node 
+所有指令均由7个数字组成，第一个数字为模式选择，后6个为参数：
+模式	示例指令	功能描述
+1 0 0 0 0 0 0	执行预设握手动作
+2 0 0 0 0 0 0	执行预设松手动作
+3 0 0 0 0 0 0	全手指松开
+3 45 45 45 45 45 45	全手指半握
+3 90 90 90 90 0 0	四指全握（大拇指松开）
+角度控制范围
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.007.png)
+    每个手指角度范围：0（完全伸直）~90（完全弯曲）
 
-最后就可以在键盘输入的节点，发布命令
+    特殊说明：大拇指最后一个参数可以不为0，
 
-比如1 0 0 0 0 0 0为握紧手 当第一个数字为1时6个数字无意义，任意填
+四、故障排除指南
 
-`    `2 0 0 0 0 0 0为松开手 当第一个数字为2时6个数字无意义，任意填
+    编译失败
 
-`    `3 45 45 45 45 0 0 当第一个数字为三是给手6个关节任意角度
+        确保在hand_ws目录下执行编译
 
-比如3 0 0 0 0 0 0 相当于松开手
+        检查ROS环境是否配置正确：echo $ROS_PACKAGE_PATH
 
-![](Aspose.Words.fc505a81-980c-4161-a093-4d57247430cf.008.png)
+        完整清理后重新编译：
 
+        rm -rf build/ devel/
+        catkin_make
 
+    设备连接问题
 
+        检查设备是否识别：ls /dev/ttyUSB*
 
+        确认用户权限：groups | grep dialout
 
+        临时解决方案：
+
+        sudo chmod 666 /dev/ttyUSB0
+
+    节点通信异常
+
+        确认roscore已运行：roscore
+
+        检查节点列表：rosnode list
+
+        查看话题通信：rostopic list
